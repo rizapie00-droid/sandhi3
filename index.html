@@ -1,0 +1,549 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dk:#1e001e;--sage:#a8b89e;--moss:#71815d;--deep:#021c11;
+  --pearl:#D5D5D5;--rose:#9c5d7a;--cream:#f7f4ef;--ivory:#faf8f4;
+  --sage-lt:#edf2e9;--sage-mid:#c9d8c2;--rose-lt:#f5eaf0;
+}
+body{font-family:var(--font-sans);background:var(--ivory);color:var(--dk);font-size:15px}
+.shell{max-width:680px;margin:0 auto;padding:1.4rem 1rem 3rem}
+.hdr{background:var(--dk);color:var(--pearl);border-radius:14px;padding:1.2rem 1.4rem 1rem;margin-bottom:1.4rem;position:relative;overflow:hidden}
+.hdr::after{content:'三声';position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:4.5rem;color:rgba(168,184,158,.12);font-family:serif;pointer-events:none;line-height:1}
+.hdr-eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--sage);margin-bottom:.35rem}
+.hdr-title{font-size:18px;font-weight:500;color:var(--ivory);margin-bottom:.3rem}
+.hdr-sub{font-size:12px;color:var(--sage-mid);line-height:1.5;max-width:420px}
+.rule-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.3rem}
+.rule-box{background:#fff;border:0.5px solid var(--sage-mid);border-radius:10px;padding:.75rem 1rem;border-top:2px solid var(--moss)}
+.rule-box.rose{border-top-color:var(--rose)}
+.rule-tag{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--moss);margin-bottom:4px}
+.rule-tag.rose{color:var(--rose)}
+.rule-formula{font-size:14px;color:var(--dk);line-height:1.6}
+.rule-formula b{font-weight:500}
+.ltabs{display:flex;gap:0;border:0.5px solid var(--sage-mid);border-radius:10px;overflow:hidden;margin-bottom:1.3rem}
+.ltab{flex:1;padding:9px 6px;text-align:center;cursor:pointer;background:transparent;border:none;font-family:var(--font-sans);font-size:12px;color:var(--moss);line-height:1.4;transition:all .15s}
+.ltab.on{background:var(--dk);color:var(--pearl)}
+.ltab:not(:last-child){border-right:0.5px solid var(--sage-mid)}
+.lvl{display:none}.lvl.on{display:block}
+.lvl-badge{display:inline-block;padding:2px 12px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;background:var(--dk);color:var(--pearl);margin-bottom:1rem}
+.ex{background:#fff;border:0.5px solid var(--sage-mid);border-radius:12px;padding:1rem 1.15rem;margin-bottom:.8rem;transition:all .2s}
+.ex.ok{border-color:var(--moss);background:var(--sage-lt)}
+.ex.err{border-color:#a32d2d;background:#fcebeb}
+.cn{font-size:22px;line-height:1.6;letter-spacing:.04em;margin-bottom:5px}
+.cn .u{text-decoration:underline;text-decoration-color:var(--sage);text-underline-offset:4px}
+.py{font-size:12px;color:var(--moss);line-height:1.8;margin-bottom:6px}
+.py .ph{color:var(--dk);font-weight:500}
+.tone-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px;align-items:center}
+.tc{display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--ivory);border:0.5px solid var(--sage-mid);border-radius:8px;padding:5px 9px;min-width:48px}
+.tc .hz{font-size:19px;line-height:1.2}
+.tc .tone-val{font-size:11px;font-weight:500;padding:1px 7px;border-radius:10px;background:var(--sage-lt);color:var(--moss);min-width:28px;text-align:center;transition:all .25s}
+.tc .tone-val.t2{background:#eaf3de;color:#27500a}
+.tc .tone-val.t3{background:#faeeda;color:#633806}
+.tc .tone-val.t2x{background:#e8f1fb;color:#0c447c}
+.tc .tone-val.t2opt{background:#f5eaf0;color:var(--rose)}
+.tc .tone-val.other{background:var(--sage-lt);color:var(--moss)}
+.tc.active{border-color:var(--moss);background:var(--sage-lt)}
+.mn{font-size:12px;color:#777;margin-bottom:9px}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+button.ob{padding:5px 14px;border-radius:20px;font-size:12px;border:0.5px solid var(--sage-mid);background:transparent;color:var(--dk);cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+button.ob:hover{background:var(--sage-lt);border-color:var(--moss)}
+button.ob:disabled{opacity:.55;cursor:default}
+button.ob.cok{background:var(--sage-lt);border-color:var(--moss);color:var(--deep);font-weight:500}
+button.ob.cerr{background:#fcebeb;border-color:#a32d2d;color:#791f1f}
+button.ob.rev{background:var(--sage-lt);border-color:var(--moss);color:var(--deep)}
+.fb{font-size:12px;min-height:18px;color:#888;line-height:1.5}
+.fb.ok{color:var(--deep);font-weight:500}
+.fb.err{color:#a32d2d}
+.drag-note{font-size:12px;color:var(--moss);margin-bottom:.9rem;line-height:1.5;background:var(--sage-lt);border-radius:8px;padding:.55rem .9rem}
+.score-strip{display:flex;align-items:center;gap:12px;padding:.85rem 1.1rem;background:var(--sage-lt);border:0.5px solid var(--sage-mid);border-radius:10px;margin-top:1.3rem}
+.score-big{font-size:24px;font-weight:500;color:var(--dk)}
+.score-lab{font-size:11px;color:var(--moss)}
+.reset-btn{margin-left:auto;padding:5px 14px;border-radius:20px;font-size:12px;border:0.5px solid var(--sage-mid);background:#fff;color:var(--dk);cursor:pointer;font-family:var(--font-sans)}
+.reset-btn:hover{background:var(--sage-lt)}
+.pearls{display:flex;align-items:center;gap:4px;margin-bottom:1rem}
+.p{width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,var(--sage-mid) 50%,var(--moss) 100%);flex-shrink:0}
+.p.rose{background:radial-gradient(circle at 35% 35%,#fff 0%,#e8c5d8 45%,var(--rose) 100%)}
+.p.lg{width:9px;height:9px}
+.p-line{flex:1;max-width:60px;height:0.5px;background:linear-gradient(90deg,transparent,var(--sage-mid),transparent)}
+@media(max-width:500px){.rule-strip{grid-template-columns:1fr}}
+</style>
+
+<div class="shell">
+
+<div class="hdr">
+  <div class="hdr-eyebrow">Tone Sandhi · Duanmu (2007)</div>
+  <div class="hdr-title">Модуляції третього тону (T3S)</div>
+  <div class="hdr-sub">三声变调 — T3 перед T3 обов'язково стає T2. T3 перед «вторинним» T2 — опціонально.</div>
+</div>
+
+<div class="rule-strip">
+  <div class="rule-box">
+    <div class="rule-tag">Обов'язкова</div>
+    <div class="rule-formula">T3 + T3 → <b>T2</b> + T3<br><span style="font-size:12px;color:var(--moss)">mǎi mǎ → mái mǎ</span></div>
+  </div>
+  <div class="rule-box rose">
+    <div class="rule-tag rose">Опціональна</div>
+    <div class="rule-formula">T3 + T2* → <b>T2?</b> + T2*<br><span style="font-size:12px;color:var(--rose)">T2* = T2 що виник із T3</span></div>
+  </div>
+</div>
+
+<div class="pearls">
+  <span class="p lg"></span><span class="p-line"></span>
+  <span class="p rose"></span><span class="p-line"></span>
+  <span class="p lg"></span>
+</div>
+
+<div class="ltabs">
+  <div class="ltab on" onclick="setLv(0)">Рівень 1<br><span style="font-weight:300;font-size:10px">двоскладові пари</span></div>
+  <div class="ltab" onclick="setLv(1)">Рівень 2<br><span style="font-weight:300;font-size:10px">ланцюжки T3</span></div>
+  <div class="ltab" onclick="setLv(2)">Рівень 3<br><span style="font-weight:300;font-size:10px">речення</span></div>
+</div>
+
+<!-- ═══ LEVEL 1 ═══ -->
+<div class="lvl on" id="lv0">
+<div class="lvl-badge">рівень 1 — двоскладові пари</div>
+<p style="font-size:12px;color:var(--moss);margin-bottom:1rem">Що відбувається з першим T3? Обери правильний поверхневий тон підкресленого складу.</p>
+
+<div class="ex" id="x1_0">
+  <div class="cn"><span class="u">买</span>马</div>
+  <div class="py">mǎi mǎ</div>
+  <div class="mn">купити коня — обидва T3</div>
+  <div class="opts" id="o1_0"></div>
+  <div class="fb" id="f1_0"></div>
+</div>
+
+<div class="ex" id="x1_1">
+  <div class="cn"><span class="u">你</span>好</div>
+  <div class="py">nǐ hǎo</div>
+  <div class="mn">привіт — nǐ T3, hǎo T3</div>
+  <div class="opts" id="o1_1"></div>
+  <div class="fb" id="f1_1"></div>
+</div>
+
+<div class="ex" id="x1_2">
+  <div class="cn"><span class="u">所</span>有</div>
+  <div class="py">suǒ yǒu</div>
+  <div class="mn">все — suǒ T3, yǒu T3</div>
+  <div class="opts" id="o1_2"></div>
+  <div class="fb" id="f1_2"></div>
+</div>
+
+<div class="ex" id="x1_3">
+  <div class="cn"><span class="u">买</span>书</div>
+  <div class="py">mǎi shū</div>
+  <div class="mn">купити книгу — mǎi T3, shū T1</div>
+  <div class="opts" id="o1_3"></div>
+  <div class="fb" id="f1_3"></div>
+</div>
+
+<div class="ex" id="x1_4">
+  <div class="cn"><span class="u">也</span>许</div>
+  <div class="py">yě xǔ</div>
+  <div class="mn">можливо — yě T3, xǔ T3</div>
+  <div class="opts" id="o1_4"></div>
+  <div class="fb" id="f1_4"></div>
+</div>
+
+<div class="ex" id="x1_5">
+  <div class="cn"><span class="u">可</span>以</div>
+  <div class="py">kě yǐ</div>
+  <div class="mn">можна — kě T3, yǐ T3</div>
+  <div class="opts" id="o1_5"></div>
+  <div class="fb" id="f1_5"></div>
+</div>
+
+<div class="ex" id="x1_6">
+  <div class="cn"><span class="u">我</span>来</div>
+  <div class="py">wǒ lái</div>
+  <div class="mn">я прийду — wǒ T3, lái T2 (справжній T2, не з T3S)</div>
+  <div class="opts" id="o1_6"></div>
+  <div class="fb" id="f1_6"></div>
+</div>
+
+<div class="score-strip">
+  <div><div class="score-lab">правильно</div><div class="score-big" id="s0">0 / 0</div></div>
+  <button class="reset-btn" onclick="location.reload()">скинути</button>
+</div>
+</div>
+
+<!-- ═══ LEVEL 2 ═══ -->
+<div class="lvl" id="lv1">
+<div class="lvl-badge">рівень 2 — ланцюжки T3</div>
+<p style="font-size:12px;color:var(--moss);margin-bottom:.6rem">Кілька T3 підряд. Обери правильний поверхневий тоновий патерн.</p>
+<div class="drag-note">Останній T3 у ланцюжку не змінюється. Ліворозгалужені структури — єдиний варіант. Між незалежними парами — опціонально.</div>
+
+<div class="ex" id="x2_0">
+  <div class="cn">你好吗？</div>
+  <div class="py">nǐ hǎo ma</div>
+  <div class="mn">Як справи? — nǐ T3, hǎo T3, ma T0 (ненаголошений)</div>
+  <div class="tone-row" id="tr2_0">
+    <div class="tc"><span class="hz">你</span><span class="tone-val t3" id="tv2_0_0">T3</span></div>
+    <div style="font-size:16px;color:var(--sage)">+</div>
+    <div class="tc"><span class="hz">好</span><span class="tone-val t3" id="tv2_0_1">T3</span></div>
+    <div style="font-size:16px;color:var(--sage)">+</div>
+    <div class="tc"><span class="hz">吗</span><span class="tone-val other">T0</span></div>
+  </div>
+  <div class="opts" id="o2_0"></div>
+  <div class="fb" id="f2_0"></div>
+</div>
+
+<div class="ex" id="x2_1">
+  <div class="cn">展览馆</div>
+  <div class="py">zhǎn lǎn guǎn</div>
+  <div class="mn">виставковий зал — [[展览]馆], усі T3</div>
+  <div class="tone-row" id="tr2_1">
+    <div class="tc"><span class="hz">展</span><span class="tone-val t3" id="tv2_1_0">T3</span></div>
+    <div style="font-size:16px;color:var(--sage)">→</div>
+    <div class="tc"><span class="hz">览</span><span class="tone-val t3" id="tv2_1_1">T3</span></div>
+    <div style="font-size:16px;color:var(--sage)">→</div>
+    <div class="tc"><span class="hz">馆</span><span class="tone-val t3" id="tv2_1_2">T3</span></div>
+  </div>
+  <div class="opts" id="o2_1"></div>
+  <div class="fb" id="f2_1"></div>
+</div>
+
+<div class="ex" id="x2_2">
+  <div class="cn">老李买酒</div>
+  <div class="py">lǎo Lǐ mǎi jiǔ</div>
+  <div class="mn">Лао Лі купує вино — [[老李][买酒]], усі T3</div>
+  <div class="tone-row" id="tr2_2">
+    <div class="tc"><span class="hz">老</span><span class="tone-val t3" id="tv2_2_0">T3</span></div>
+    <div class="tc"><span class="hz">李</span><span class="tone-val t3" id="tv2_2_1">T3</span></div>
+    <div style="font-size:14px;color:var(--rose);padding:0 4px">|</div>
+    <div class="tc"><span class="hz">买</span><span class="tone-val t3" id="tv2_2_2">T3</span></div>
+    <div class="tc"><span class="hz">酒</span><span class="tone-val t3" id="tv2_2_3">T3</span></div>
+  </div>
+  <div class="opts" id="o2_2"></div>
+  <div class="fb" id="f2_2"></div>
+</div>
+
+<div class="ex" id="x2_3">
+  <div class="cn">我买好酒</div>
+  <div class="py">wǒ mǎi hǎo jiǔ</div>
+  <div class="mn">Я купую хороше вино — [我[买[好酒]]], усі T3, правостороння</div>
+  <div class="tone-row" id="tr2_3">
+    <div class="tc"><span class="hz">我</span><span class="tone-val t3" id="tv2_3_0">T3</span></div>
+    <div class="tc"><span class="hz">买</span><span class="tone-val t3" id="tv2_3_1">T3</span></div>
+    <div class="tc"><span class="hz">好</span><span class="tone-val t3" id="tv2_3_2">T3</span></div>
+    <div class="tc"><span class="hz">酒</span><span class="tone-val t3" id="tv2_3_3">T3</span></div>
+  </div>
+  <div class="opts" id="o2_3"></div>
+  <div class="fb" id="f2_3"></div>
+</div>
+
+<div class="ex" id="x2_4">
+  <div class="cn">好几种</div>
+  <div class="py">hǎo jǐ zhǒng</div>
+  <div class="mn">кілька видів — [[好几]种], усі T3, ліворозгалужена</div>
+  <div class="tone-row" id="tr2_4">
+    <div class="tc"><span class="hz">好</span><span class="tone-val t3" id="tv2_4_0">T3</span></div>
+    <div class="tc"><span class="hz">几</span><span class="tone-val t3" id="tv2_4_1">T3</span></div>
+    <div class="tc"><span class="hz">种</span><span class="tone-val t3" id="tv2_4_2">T3</span></div>
+  </div>
+  <div class="opts" id="o2_4"></div>
+  <div class="fb" id="f2_4"></div>
+</div>
+
+<div class="score-strip">
+  <div><div class="score-lab">правильно</div><div class="score-big" id="s1">0 / 0</div></div>
+  <button class="reset-btn" onclick="location.reload()">скинути</button>
+</div>
+</div>
+
+<!-- ═══ LEVEL 3 ═══ -->
+<div class="lvl" id="lv2">
+<div class="lvl-badge">рівень 3 — речення</div>
+<p style="font-size:12px;color:var(--moss);margin-bottom:1rem">Визнач поверхневий тоновий патерн усього речення.</p>
+
+<div class="ex" id="x3_0">
+  <div class="cn">我也买马。</div>
+  <div class="py">wǒ yě mǎi mǎ — усі T3</div>
+  <div class="mn">Я теж купую коня</div>
+  <div class="opts" id="o3_0"></div>
+  <div class="fb" id="f3_0"></div>
+</div>
+
+<div class="ex" id="x3_1">
+  <div class="cn">你可以走了。</div>
+  <div class="py">nǐ kě yǐ zǒu le — nǐ T3, kě T3, yǐ T3, zǒu T3, le T0</div>
+  <div class="mn">Ти можеш іти</div>
+  <div class="opts" id="o3_1"></div>
+  <div class="fb" id="f3_1"></div>
+</div>
+
+<div class="ex" id="x3_2">
+  <div class="cn">我想买书。</div>
+  <div class="py">wǒ xiǎng mǎi shū — wǒ T3, xiǎng T3, mǎi T3, shū T1</div>
+  <div class="mn">Я хочу купити книгу</div>
+  <div class="opts" id="o3_2"></div>
+  <div class="fb" id="f3_2"></div>
+</div>
+
+<div class="ex" id="x3_3">
+  <div class="cn">也许可以。</div>
+  <div class="py">yě xǔ kě yǐ — усі T3</div>
+  <div class="mn">Можливо, можна</div>
+  <div class="opts" id="o3_3"></div>
+  <div class="fb" id="f3_3"></div>
+</div>
+
+<div class="ex" id="x3_4">
+  <div class="cn">老李有姐姐。</div>
+  <div class="py">lǎo Lǐ yǒu jiě jie — lǎo T3, Lǐ T3, yǒu T3, jiě T3, jie T0</div>
+  <div class="mn">Лао Лі має сестру</div>
+  <div class="opts" id="o3_4"></div>
+  <div class="fb" id="f3_4"></div>
+</div>
+
+<div class="score-strip">
+  <div><div class="score-lab">правильно</div><div class="score-big" id="s2">0 / 0</div></div>
+  <button class="reset-btn" onclick="location.reload()">скинути</button>
+</div>
+</div>
+
+</div>
+
+<script>
+var sc=[{c:0,t:0},{c:0,t:0},{c:0,t:0}];
+var done={};
+
+function setLv(n){
+  document.querySelectorAll('.lvl').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.ltab').forEach(function(b){b.classList.remove('on')});
+  document.getElementById('lv'+n).classList.add('on');
+  document.querySelectorAll('.ltab')[n].classList.add('on');
+}
+
+function shuffle(arr){
+  for(var i=arr.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=arr[i];arr[i]=arr[j];arr[j]=t;
+  }
+  return arr;
+}
+
+function updScore(lv){
+  document.getElementById('s'+lv).textContent=sc[lv].c+' / '+sc[lv].t;
+}
+
+var toneClass={'T2':'t2','T3':'t3','T2*':'t2opt','T2!':'t2x','T0':'other','T1':'other','T4':'other'};
+
+/* ── build level 1 buttons ── */
+var q1=[
+  {id:'1_0',ok:'mái T2',opts:['mái T2','mǎi T3','mài T4'],
+   msg:'T3+T3 → T2+T3. Обов\'язкова зміна.',
+   msgErr:'T3+T3 → T2+T3 — обов\'язкова зміна!'},
+  {id:'1_1',ok:'ní T2',opts:['ní T2','nǐ T3','nì T4'],
+   msg:'ní hǎo — класика! nǐ+hǎo → ní+hǎo.',
+   msgErr:'T3+T3 → T2+T3. nǐ перед hǎo(T3) → ní.'},
+  {id:'1_2',ok:'suó T2',opts:['suó T2','suǒ T3','suò T4'],
+   msg:'suó yǒu — T3+T3 → T2+T3.',
+   msgErr:'T3+T3 → T2+T3. suǒ перед yǒu(T3) → suó.'},
+  {id:'1_3',ok:'mǎi T3',opts:['mái T2','mǎi T3','mài T4'],
+   msg:'mǎi shū — T3+T1: T3S не застосовується! Правило діє лише перед T3.',
+   msgErr:'T3S діє тільки перед T3. shū — це T1, тому mǎi не змінюється.'},
+  {id:'1_4',ok:'yé T2',opts:['yé T2','yě T3','yè T4'],
+   msg:'yé xǔ — T3+T3 → T2+T3.',
+   msgErr:'T3+T3 → T2+T3. yě перед xǔ(T3) → yé.'},
+  {id:'1_5',ok:'ké T2',opts:['ké T2','kě T3'],
+   msg:'ké yǐ — T3+T3 → T2+T3.',
+   msgErr:'T3+T3 → T2+T3. kě перед yǐ(T3) → ké.'},
+  {id:'1_6',ok:'wǒ T3',opts:['wó T2','wǒ T3'],
+   msg:'wǒ lái — T3+T2(справжній): T3S не застосовується. Правило діє тільки перед T3 або перед T2*, що виник із T3.',
+   msgErr:'lái — справжній T2, не з T3S. T3S не застосовується.'},
+];
+
+q1.forEach(function(q){
+  var cont=document.getElementById('o'+q.id);
+  var shuffled=shuffle(q.opts.slice());
+  shuffled.forEach(function(label){
+    var b=document.createElement('button');
+    b.className='ob';
+    b.textContent=label;
+    var isOk=(label===q.ok);
+    b.onclick=function(){
+      if(done[q.id]) return;
+      done[q.id]=true;
+      var lv=0; sc[lv].t++; if(isOk) sc[lv].c++;
+      var card=document.getElementById('x'+q.id);
+      var fb=document.getElementById('f'+q.id);
+      cont.querySelectorAll('.ob').forEach(function(x){x.disabled=true});
+      b.classList.add(isOk?'cok':'cerr');
+      if(isOk){
+        card.classList.add('ok');
+        fb.textContent='Правильно. '+q.msg; fb.className='fb ok';
+      } else {
+        card.classList.add('err');
+        fb.textContent='Ні. '+q.msgErr; fb.className='fb err';
+        cont.querySelectorAll('.ob').forEach(function(x){
+          if(x.textContent===q.ok) x.classList.add('rev');
+        });
+      }
+      updScore(lv);
+    };
+    cont.appendChild(b);
+  });
+});
+
+/* ── build level 2 buttons ── */
+var q2=[
+  {id:'2_0',rowId:'tr2_0',
+   choices:[
+     {label:'ní hǎo',vals:['T2','T3'],ok:true,
+      msg:'nǐ→ní перед hǎo(T3) — обов\'язкова. hǎo залишається T3 (ma — ненаголошений).'},
+     {label:'nǐ háo',vals:['T3','T2'],ok:false},
+     {label:'ní háo',vals:['T2','T2'],ok:false,msg:'Обидва не можуть стати T2 одночасно: лише перший T3 змінюється, останній залишається.'},
+   ]},
+  {id:'2_1',rowId:'tr2_1',
+   choices:[
+     {label:'T2-T2-T3',vals:['T2','T2','T3'],ok:true,
+      msg:'[[展览]馆]: цикл 1 — 展+览→T2-T3; цикл 2 — 览(T2*) суміжне з 馆(T3), тому обов\'язково T2. Підсумок: T2-T2-T3.'},
+     {label:'T2-T3-T3',vals:['T2','T3','T3'],ok:false},
+     {label:'T3-T2-T3',vals:['T3','T2','T3'],ok:false},
+   ]},
+  {id:'2_2',rowId:'tr2_2',
+   choices:[
+     {label:'T2-T3-T2-T3',vals:['T2','T3','T2','T3'],ok:true,
+      msg:'Цикл 1: [老李]→T2-T3; [买酒]→T2-T3. Межа між парами опціональна. Базова форма.'},
+     {label:'T2-T2-T2-T3',vals:['T2','T2','T2','T3'],ok:true,
+      msg:'Також правильно. Цикл 2: 李 перед 买(T2*) — опціонально → T2. Обидві форми прийнятні.'},
+     {label:'T3-T3-T2-T3',vals:['T3','T3','T2','T3'],ok:false},
+   ]},
+  {id:'2_3',rowId:'tr2_3',
+   choices:[
+     {label:'T2-T3-T2-T3',vals:['T2','T3','T2','T3'],ok:true,
+      msg:'Правостороння: [好酒]→T2-T3; 买 перед 好(T2*) суміжне→обов\'язково T2; 我 перед 买(T2) — опціонально. Базова: T2-T3-T2-T3.'},
+     {label:'T2-T2-T2-T3',vals:['T2','T2','T2','T3'],ok:true,
+      msg:'Також правильно при швидкому мовленні — всі T3 крім останнього → T2.'},
+     {label:'T3-T2-T2-T3',vals:['T3','T2','T2','T3'],ok:false},
+   ]},
+  {id:'2_4',rowId:'tr2_4',
+   choices:[
+     {label:'T2-T3-T3',vals:['T2','T3','T3'],ok:false},
+     {label:'T2-T2-T3',vals:['T2','T2','T3'],ok:true,
+      msg:'[[好几]种]: цикл 1→T2-T3; цикл 2: 几(T2*) суміжне з 种(T3)→обов\'язково T2. Ліворозгалужені структури дають єдиний результат.'},
+     {label:'T3-T2-T3',vals:['T3','T2','T3'],ok:false},
+   ]},
+];
+
+q2.forEach(function(q){
+  var cont=document.getElementById('o'+q.id);
+  var shuffled=shuffle(q.choices.slice());
+  shuffled.forEach(function(ch){
+    var b=document.createElement('button');
+    b.className='ob';
+    b.textContent=ch.label;
+    b.onclick=function(){
+      if(done[q.id]) return;
+      done[q.id]=true;
+      var lv=1; sc[lv].t++; if(ch.ok) sc[lv].c++;
+      var card=document.getElementById('x'+q.id);
+      var fb=document.getElementById('f'+q.id);
+      cont.querySelectorAll('.ob').forEach(function(x){x.disabled=true});
+      var row=document.getElementById(q.rowId);
+      var tcs=row.querySelectorAll('.tone-val:not(.other)');
+      for(var i=0;i<tcs.length&&i<ch.vals.length;i++){
+        tcs[i].textContent=ch.vals[i];
+        tcs[i].className='tone-val '+(toneClass[ch.vals[i]]||'other');
+        if(ch.ok) tcs[i].parentElement.classList.add('active');
+      }
+      b.classList.add(ch.ok?'cok':'cerr');
+      if(ch.ok){
+        card.classList.add('ok');
+        fb.textContent='Правильно. '+ch.msg; fb.className='fb ok';
+      } else {
+        card.classList.add('err');
+        var errMsg=ch.msg||'Перевір правила: T3+T3→T2+T3; T3 перед справжнім T1/T2/T4 не змінюється.';
+        fb.textContent='Ні. '+errMsg; fb.className='fb err';
+        cont.querySelectorAll('.ob').forEach(function(x){
+          var isOkBtn=shuffled.find(function(c){return c.label===x.textContent&&c.ok});
+          if(isOkBtn) x.classList.add('rev');
+        });
+      }
+      updScore(lv);
+    };
+    cont.appendChild(b);
+  });
+});
+
+/* ── build level 3 buttons ── */
+var q3=[
+  {id:'3_0',
+   choices:[
+     {label:'T2-T3-T2-T3',ok:true,
+      msg:'[我也] → T2-T3; [买马] → T2-T3. Межа між парами опціональна. Базова: T2-T3-T2-T3.'},
+     {label:'T3-T3-T2-T3',ok:false,
+      msg:'Перша пара [我也]: обидва T3 → обов\'язкова зміна першого.'},
+     {label:'T2-T2-T2-T3',ok:false,
+      msg:'T2-T2-T2-T3 можливо лише при опціональній зміні через межу.'},
+   ]},
+  {id:'3_1',
+   choices:[
+     {label:'T3-T2-T3-T2-T0',ok:false,
+      msg:'T3S іде зліва направо — перший T3 змінюється, не другий.'},
+     {label:'T2-T3-T2-T3-T0',ok:true,
+      msg:'[你可]→T2-T3; [以走]→T2-T3; le T0. Базова: T2-T3-T2-T3-T0.'},
+     {label:'T2-T2-T3-T3-T0',ok:false,
+      msg:'Кожна пара T3+T3 змінює перший елемент окремо.'},
+   ]},
+  {id:'3_2',
+   choices:[
+     {label:'T2-T2-T2-T1',ok:false,
+      msg:'书 — T1, а не T3. T3S не застосовується до 买 перед 书.'},
+     {label:'T2-T3-T2-T1',ok:false,
+      msg:'[我想]→T2-T3 правильно. Але 买 перед 书(T1) — T3S не застосовується, 买 залишається T3.'},
+     {label:'T2-T3-T3-T1',ok:true,
+      msg:'[我想]→T2-T3; 买 перед 书(T1): T3S не діє. Підсумок: T2-T3-T3-T1.'},
+   ]},
+  {id:'3_3',
+   choices:[
+     {label:'T3-T2-T3-T2',ok:false,
+      msg:'T3S іде зліва направо — перший змінюється, не другий.'},
+     {label:'T2-T2-T2-T3',ok:false,
+      msg:'Це можливо лише при опціональній зміні через межу пар.'},
+     {label:'T2-T3-T2-T3',ok:true,
+      msg:'[[也许][可以]]: кожна пара→T2-T3. Базова: T2-T3-T2-T3.'},
+   ]},
+  {id:'3_4',
+   choices:[
+     {label:'T2-T2-T2-T3-T0',ok:false,
+      msg:'[[老李][有[姐姐]]]: [老李]→T2-T3; 有 перед 姐(T3) суміжне→T2; 姐 перед ненаголошеним jie залишається T3. Базова: T2-T3-T2-T3-T0.'},
+     {label:'T2-T3-T3-T2-T0',ok:false,
+      msg:'有 суміжне з 姐(T3) — T3S обов\'язкова.'},
+     {label:'T2-T3-T2-T3-T0',ok:true,
+      msg:'[老李]→T2-T3; yǒu перед jiě(T3) суміжне → обов\'язково T2; jiě перед ненаголошеним jie → залишається T3. Підсумок: T2-T3-T2-T3-T0.'},
+   ]},
+];
+
+q3.forEach(function(q){
+  var cont=document.getElementById('o'+q.id);
+  var shuffled=shuffle(q.choices.slice());
+  shuffled.forEach(function(ch){
+    var b=document.createElement('button');
+    b.className='ob';
+    b.textContent=ch.label;
+    b.onclick=function(){
+      if(done[q.id]) return;
+      done[q.id]=true;
+      var lv=2; sc[lv].t++; if(ch.ok) sc[lv].c++;
+      var card=document.getElementById('x'+q.id);
+      var fb=document.getElementById('f'+q.id);
+      cont.querySelectorAll('.ob').forEach(function(x){x.disabled=true});
+      b.classList.add(ch.ok?'cok':'cerr');
+      if(ch.ok){
+        card.classList.add('ok');
+        fb.textContent='Правильно. '+ch.msg; fb.className='fb ok';
+      } else {
+        card.classList.add('err');
+        fb.textContent='Ні. '+ch.msg; fb.className='fb err';
+        cont.querySelectorAll('.ob').forEach(function(x){
+          var isOkBtn=shuffled.find(function(c){return c.label===x.textContent&&c.ok});
+          if(isOkBtn) x.classList.add('rev');
+        });
+      }
+      updScore(lv);
+    };
+    cont.appendChild(b);
+  });
+});
+</script>
